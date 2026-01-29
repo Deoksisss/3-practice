@@ -24,9 +24,9 @@ ChessPiece? piece = nameOfPiece.ToLower() switch
     "слон"  => new Bishop(pos1),
     "ладья" => new Rook(pos1),
     "ферзь" => new Queen(pos1),
-    "пешка" => new Pawn(pos1),
+    "пешка" => new Pawn(pos1, GetColor()),
     "король" => new King(pos1),
-    _       => null
+    _ => null
 };
 if (piece != null)
 {
@@ -43,6 +43,13 @@ else
 {
     Console.Write("Имя фигуры введено неверно");
 }
+
+static string GetColor()
+{
+    Console.WriteLine("Введите цвет пешки: ");
+    return Console.ReadLine()!.ToLower();
+}
+
 abstract class ChessPiece
 {
     protected CheckerBoardPosition Position { get; }
@@ -118,21 +125,18 @@ class Knight : ChessPiece
 
 class Pawn : ChessPiece
 {
-    public Pawn(CheckerBoardPosition position) : base(position) {}
-
+    private readonly string _color;
+    public Pawn(CheckerBoardPosition position, string color) : base(position)
+    {
+        if (color != "белый" && color != "чёрный")
+            throw new FormatException("Вы ввели несуществующий цвет пешки");
+        
+        _color = color;
+    }
     protected override bool CanMoveToInternal(CheckerBoardPosition endPosition)
     {
-        Console.WriteLine("Введите цвет пешки (белый/чёрный)");
-        string color = Console.ReadLine()!.ToLower();
-
-        if (color != "белый" && color != "чёрный")
-        {
-            Console.WriteLine("Вы ввели несуществующий цвет пешки");
-            return false;
-        }
-        
-        int direction = color == "белый" ? 1 : -1;
-        int startRow  = color == "белый" ? 2 : 7;
+        int direction = _color == "белый" ? 1 : -1;
+        int startRow  = _color == "белый" ? 2 : 7;
         int dy = endPosition.Y - Position.Y;
         
         if (endPosition.X != Position.X || dy * direction <= 0)
